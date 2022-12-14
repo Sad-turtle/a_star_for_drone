@@ -1,8 +1,6 @@
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-import numpy as np
-
-# Define a class to represent the 3D map
+import math
 class Map:
     def __init__(self, obstacles):
         # Initialize the map with the given obstacles
@@ -16,13 +14,21 @@ class Map:
                 return False
         return True
 
-    def heuristic(self, x1, y1, z1, x2, y2, z2):
+    def heuristic(self, x1, y1, z1, x2, y2, z2, wind_speed, wind_direction):
         # Calculate the heuristic cost between two points
-        return abs(x1 - x2) + abs(y1 - y2) + abs(z1 - z2)
+        distance = abs(x1 - x2) + abs(y1 - y2) + abs(z1 - z2)
 
+        # Calculate the angle between the direction of the wind and the line connecting the two points
+        wind_angle = math.atan2(y2 - y1, x2 - x1) - wind_direction
+
+        # Calculate the component of the wind speed in the direction of the line connecting the two points
+        wind_component = wind_speed * math.cos(wind_angle)
+
+        # Return the total heuristic cost, taking into account the wind speed and direction
+        return distance + wind_component
 
 # Define a function to perform the A* search
-def a_star_search(map, start, goal):
+def a_star_search(map, start, goal, wind_speed, wind_direction):
     # Create a list to store the visited nodes
     visited = []
     # Create a list of the remaining nodes to be explored
@@ -31,11 +37,11 @@ def a_star_search(map, start, goal):
     # Keep looping until there are no more nodes to explore
     while remaining:
         # Sort the remaining nodes by their heuristic cost
-        remaining.sort(key=lambda x: map.heuristic(x[0], x[1], x[2], goal[0], goal[1], goal[2]))
+        remaining.sort(key=lambda x: map.heuristic(x[0], x[1], x[2], goal[0], goal[1], goal[2], wind_speed, wind_direction))
 
         # Get the node with the lowest heuristic cost
         current = remaining.pop(0)
-
+        print(current)
         # Check if we have reached the goal
         if current == goal:
             # Return the list of visited nodes if the goal is reached
@@ -56,56 +62,47 @@ def a_star_search(map, start, goal):
     # Return an empty list if the goal could not be reached
     return []
 
-fig = plt.figure()
-ax = plt.axes(projection='3d')
-
-
+obstacles = [[0, 4, 2, 5, 0, 6], [6, 8, 3, 8, 0, 12], [6, 8, 10, 12, 0, 10]]
+# Define a map with some obstacles
+map = Map(obstacles)
 
 # Define the start and goal coordinates
 start = (0, 0, 0)
-goal1 = (15, 15, 15)
-goal2 = (9, 9, 15)
+goal = (9, 9, 9)
+goal2 = (12, 12, 12)
 
-# Define the obstacles on the map
-obstacles = [(0, 3, 0, 3, 0, 3), (0, 4, 6, 9, 0, 10), (6, 9, 6, 8, 0, 12)]
+# Define the wind speed and direction
+wind_speed = 3
+wind_direction = math.pi / 2
 
+# Perform the A* search, taking into account the wind speed and direction
+visited = a_star_search(map, start, goal, wind_speed, wind_direction)
 
+visited2 = a_star_search(map, start, goal2, wind_speed, wind_direction)
 
-# Create the map
-map = Map(obstacles)
+# Create a figure and a 3D axes
+fig = plt.figure()
+ax = fig.add_subplot(111, projection="3d")
 
-# Perform the A* search to find the shortest path
-path1 = a_star_search(map, start, goal1)
+# Plot the visited nodes
+ax.plot([x[0] for x in visited], [x[1] for x in visited], [x[2] for x in visited], "ro-")
+ax.plot([x[0] for x in visited2], [x[1] for x in visited2], [x[2] for x in visited2], "go-")
 
-path2 = a_star_search(map, start, goal2)
-print(path2)
-
-path_arr1 = np.asarray(path1)
-
-path_arr2 = np.asarray(path2)
-
-
-
-
+#Plot obstacles
 obstacles_coordinates = []
 
 for obst in obstacles:
     for x in range(obst[0], obst[1] + 1):
-        #print(x)
         for y in range(obst[2], obst[3] + 1):
-            #print(y)
             for z in range(obst[4], obst[5] + 1):
-                #print(z)
                 obstacles_coordinates.append([x, y, z])
 
+ax.scatter3D([x[0] for x in obstacles_coordinates], [x[1] for x in obstacles_coordinates], [x[2] for x in obstacles_coordinates], "b")
 
+# Set the axes labels
+ax.set_xlabel("X")
+ax.set_ylabel("Y")
+ax.set_zlabel("Z")
 
-obstacles_coordinates_np = np.asarray(obstacles_coordinates)
-
-
-ax.scatter(obstacles_coordinates_np[:,0], obstacles_coordinates_np[:,1], obstacles_coordinates_np[:,2], color='red')
-
-ax.scatter(path_arr1[:,0], path_arr1[:,1], path_arr1[:,2], color = 'blue')
-ax.scatter(path_arr2[:,0], path_arr2[:,1], path_arr2[:,2], color = 'green')
-
+# Show the plot
 plt.show()
