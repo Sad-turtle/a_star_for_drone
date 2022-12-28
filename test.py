@@ -91,6 +91,7 @@ ax.plot([x[0] for x in visited2], [x[1] for x in visited2], [x[2] for x in visit
 #Plot obstacles
 obstacles_coordinates = []
 
+# Convert to coordinates as an array for the plotting
 for obst in obstacles:
     for x in range(obst[0], obst[1] + 1):
         for y in range(obst[2], obst[3] + 1):
