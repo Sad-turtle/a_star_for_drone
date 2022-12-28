@@ -9,8 +9,7 @@ class Map:
     def is_free(self, x, y, z):
         # Check if the given coordinates are free of obstacles
         for obstacle in self.obstacles:
-            if x >= obstacle[0] and x <= obstacle[1] and y >= obstacle[2] and y <= obstacle[3] and z >= obstacle[
-                4] and z <= obstacle[5]:
+            if x >= obstacle[0] and x <= obstacle[1] and y >= obstacle[2] and y <= obstacle[3] and z >= obstacle[4] and z <= obstacle[5]:
                 return False
         return True
 
@@ -62,24 +61,32 @@ def a_star_search(map, start, goal, wind_speed, wind_direction):
     # Return an empty list if the goal could not be reached
     return []
 
-obstacles = [[0, 4, 2, 5, 0, 6], [6, 8, 3, 8, 0, 12], [6, 8, 10, 12, 0, 10]]
+obstacles = [[0, 3, 2, 5, 0, 6], [6, 14, 3, 8, 0, 12], [3, 8, 11, 15, 0, 15]]
 # Define a map with some obstacles
 map = Map(obstacles)
 
 # Define the start and goal coordinates
 start = (0, 0, 0)
-goal = (9, 9, 9)
-goal2 = (12, 12, 12)
+start2 = (0, 6, 0)
+start3 = (8, -2, 2)
+
+goal = (13, 15, 13)
+goal2 = (13, 13, 13)
+goal3 = (15, 15, 15)
 
 # Define the wind speed and direction
-wind_speed = 3
-wind_direction = math.pi / 2
+wind_speed1 = 0
+wind_direction1 = math.pi / 2
+
+wind_speed2 = 2
+wind_direction2 = math.pi / 3
 
 # Perform the A* search, taking into account the wind speed and direction
-visited = a_star_search(map, start, goal, wind_speed, wind_direction)
+visited = a_star_search(map, start, goal, wind_speed1, wind_direction1)
 
-visited2 = a_star_search(map, start, goal2, wind_speed, wind_direction)
+visited2 = a_star_search(map, start2, goal2, wind_speed1, wind_direction2)
 
+visited3 = a_star_search(map, start3, goal3, wind_speed2, wind_direction2)
 # Create a figure and a 3D axes
 fig = plt.figure()
 ax = fig.add_subplot(111, projection="3d")
@@ -87,6 +94,7 @@ ax = fig.add_subplot(111, projection="3d")
 # Plot the visited nodes
 ax.plot([x[0] for x in visited], [x[1] for x in visited], [x[2] for x in visited], "ro-")
 ax.plot([x[0] for x in visited2], [x[1] for x in visited2], [x[2] for x in visited2], "go-")
+ax.plot([x[0] for x in visited3], [x[1] for x in visited3], [x[2] for x in visited3], "yo-")
 
 #Plot obstacles
 obstacles_coordinates = []
